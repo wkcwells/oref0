@@ -39,7 +39,8 @@ if (!module.parent) {
         var profile = require(cwd + '/' + profile_input);
         var glucose_status = determinebasal.getLastGlucose(glucose_data);
     } catch (e) {
-        return console.error("Could not parse input data: ", e);
+        console.error("Could not parse input data: ", e);
+        process.exit(1);
     }
 
     //console.log(carbratio_data);
@@ -79,7 +80,7 @@ if (!module.parent) {
     if (minAgo > 10 || minAgo < -5) { // Dexcom data is too old, or way in the future
         var reason = "BG data is too old, or clock set incorrectly "+bgTime+" vs "+systemTime;
         console.error(reason);
-        return 1;
+        process.exit(1);
     }
     console.error(JSON.stringify(glucose_status));
     console.error(JSON.stringify(currenttemp));
