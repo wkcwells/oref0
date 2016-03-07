@@ -27,7 +27,7 @@ if (!module.parent) {
 
     if (!iob_input || !currenttemp_input || !glucose_input || !profile_input) {
         console.error('usage: ', process.argv.slice(0, 2), '<iob.json> <currenttemp.json> <glucose.json> <profile.json> [autosens.json] [meal.json]');
-        process.exit(1);
+        process.exit(4);
     }
     
     var fs = require('fs');
@@ -74,13 +74,16 @@ if (!module.parent) {
         bgTime = new Date(glucose_data[0].display_time.replace('T', ' '));
     } else if (glucose_data[0].dateString) {
         bgTime = new Date(glucose_data[0].dateString);
-    } else { console.error("Could not determine last BG time"); }
+    } else {
+	console.error("Could not determine last BG time");
+	process.exit(2);
+    }
     var minAgo = (systemTime - bgTime) / 60 / 1000;
 
     if (minAgo > 10 || minAgo < -5) { // Dexcom data is too old, or way in the future
         var reason = "RESULT FAIL: BG data is too old, or clock set incorrectly "+bgTime+" vs "+systemTime;
         console.error(reason);
-        process.exit(1);
+        process.exit(3);
     }
     console.error(JSON.stringify(glucose_status));
     console.error(JSON.stringify(currenttemp));
@@ -95,6 +98,7 @@ if (!module.parent) {
         console.log(JSON.stringify(rT));
     } else {
         console.error(rT.error);
+	process.exit(6);
     }
 
 }
