@@ -1,7 +1,12 @@
 #!/usr/bin/env node
+'use strict';
 
-var fs = require('fs');
 var os = require("os");
+
+var requireUtils = require('../lib/require-utils')
+  , safeRequire = requireUtils.safeRequire
+  , requireWithTimestamp = requireUtils.requireWithTimestamp
+  ;
 
 /*
   Prepare Status info to for upload to Nightscout
@@ -19,30 +24,22 @@ var os = require("os");
 
 */
 
-function safeRequire (path) {
-  var resolved;
-
-  try {
-    resolved = require(path);
-  } catch (e) {
-    console.error("Could not require: " + path, e);
-  }
-
-  return resolved;
-}
-
-function requireWithTimestamp (path) {
-  var resolved = safeRequire(path);
-
-  if (resolved) {
-    resolved.timestamp = fs.statSync(path).mtime;
-  }
-
-  return resolved;
+function mmtuneStatus (status) {
+    if (mmtune_input) {
+        var mmtune = requireWithTimestamp(cwd + '/' + mmtune_input);
+        if (mmtune) {
+            if (mmtune.scanDetails && mmtune.scanDetails.length > 0) {
+                mmtune.scanDetails = mmtune.scanDetails.filter(function (d) {
+                    return d[2] > -99;
+                });
+            }
+          status.mmtune = mmtune;
+        }
+    }
 }
 
 if (!module.parent) {
-    
+
     var clock_input = process.argv.slice(2, 3).pop();
     var iob_input = process.argv.slice(3, 4).pop();
     var suggested_input = process.argv.slice(4, 5).pop();
@@ -50,9 +47,10 @@ if (!module.parent) {
     var battery_input = process.argv.slice(6, 7).pop();
     var reservoir_input = process.argv.slice(7, 8).pop();
     var status_input = process.argv.slice(8, 9).pop();
+    var mmtune_input = process.argv.slice(9, 10).pop();
 
     if (!clock_input || !iob_input || !suggested_input || !enacted_input || !battery_input || !reservoir_input || !status_input) {
-        console.log('usage: ', process.argv.slice(0, 2), '<clock.json> <iob.json> <suggested.json> <enacted.json> <battery.json> <reservoir.json> <status.json>');
+        console.log('usage: ', process.argv.slice(0, 2), '<clock.json> <iob.json> <suggested.json> <enacted.json> <battery.json> <reservoir.json> <status.json> [mmtune.json]');
         process.exit(1);
     }
 
@@ -80,6 +78,8 @@ if (!module.parent) {
                 , status: requireWithTimestamp(cwd + '/' + status_input)
             }
         };
+
+        mmtuneStatus(status);
     } catch (e) {
         return console.error("Could not parse input data: ", e);
     }
