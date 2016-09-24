@@ -135,8 +135,7 @@ if (!module.parent) {
         console.error(reason);
         var msg = {msg: reason }
         errors.push(msg);
-        // KW added: process.exit(3);
-        /// return 1;
+        process.exit(3);	// KW added to distinguish BG too old errors
     }
     if (warnings.length) {
       console.error(JSON.stringify(warnings));

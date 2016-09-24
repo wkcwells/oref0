@@ -53,7 +53,7 @@
   "dependencies": {
     "share2nightscout-bridge": "^0.1.5",
     "timezone": "0.0.47",
-    "yargs": "~4.3.2"
+    "yargs": "^4.3.2"
   },
   "devDependencies": {
     "mocha": "^2.3.3",
