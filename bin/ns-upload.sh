@@ -2,6 +2,10 @@
 
 # Author: Ben West
 
+# Debugging logging
+# set -x
+
+
 self=$(basename $0)
 NIGHTSCOUT_HOST=${NIGHTSCOUT_HOST-${1-localhost:1337}}
 API_SECRET=${2-${API_SECRET}}
@@ -61,6 +65,7 @@ if [[ "$ENTRIES" != "-" ]] ; then
   fi
 fi
 (test "$ENTRIES" != "-" && cat $ENTRIES || cat )| (
+# curl -v -m 30 -s -X POST --data-binary @- \  # Verbose mode
 curl -m 30 -s -X POST --data-binary @- \
   -H "API-SECRET: $API_SECRET" \
   -H "content-type: application/json" \
